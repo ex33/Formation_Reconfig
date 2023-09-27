@@ -3,27 +3,43 @@ import matplotlib.pyplot as plt
 import math
 from Hill_Eq import hill_eq
 
-def no_drift_centered(C,D,psi0,phi0,w,tf,t_step):
-    #Given conditions C,D,pshi0,phi0 where
-    #C: Defines the 2-1 ellipse(minor axis is C, major axis is 2C) 
-    #of the interceptor motion relative to the target
-    #D: 
-    #psi:
-    #phi:
-    #w is omega
-    #tf is final time
-    #t_step is interval of time 
-    #Function returns intial conditions of the interceptor (x0 y0 z0 xdot0 ydot0 zdot0)
-    #relative to the target within the RSW frame such that yc_dot=0 (no drift) 
-    # and yc0=0, ,xc=0 (centered). These intial conditions will then be plotted according
-    #to the closed form solutions to verify with time steps 0:tf:t_step
+def no_drift_centered(C,D,psi0,phi0,omega,tf,t_step):
+    """
+    Given geometric constraints about the orbit, will return the intial conditions
+    that will result in an orbit that is centered in the RST frame with no drift once
+    propagated using the closed form hill equations. 
 
-    xdot0=math.sqrt((C*C*w*w)/(math.tan(psi0)*math.tan(psi0)+1))
-    x0=math.tan(psi0)*xdot0/w
-    y0=2*xdot0/w
-    ydot0=-2*w*x0
+    :param C: Defines the 2-1 Ellipse for intract-radial (Y,X) plane (minor axis is C, major axis is 2C)
+    :type C: float (m)
+    :param D: Defines the minor axis for ellipse on intract-cross tract (Y,Z) plane. Can think of as the Z offset
+    :type D: float (m)
+    :param psi0: phase shift for intract-radial (Y,X) plane
+    :type psi0: float (radians) 0->pi
+    :param phi0: phase shift for Z plane oscilaltions
+    :type phi0: float (radians) 0->pi
+    :param omega: Represents the angular rate, Equation is sqrt(a^3/mu)
+    :type omega: float (rad/s)
+    :param tf: Represents the final time to propagate the orbit (typically n*Period) 
+    :type tf: float (s)
+    :param t_step: Represents the time step from 0->tf
+    :type t_step: float (s)
+
+    :return State0: Returns intial state in the form of ([x0],[y0],[z0],[vx0],[vy0],[vz0]) to return specified orbit
+    :rtype: np.array (6 x 1)
+    """
+    
+    #Given equations for C,D,psi,phi,yc0,xc0, the closed form hill equations can be
+    #represented in terms of C D psi phi related to constraints that yc0=xc0=0, yc0_dot=0
+
+    #---Solved hill eq given constraints---
+    xdot0=math.sqrt((C*C*omega*omega)/(math.tan(psi0)*math.tan(psi0)+1))
+    x0=math.tan(psi0)*xdot0/omega
+    y0=2*xdot0/omega
+    ydot0=-2*omega*x0
     z0=math.sqrt((D*D)/(math.tan(phi0)*math.tan(phi0)+1))
-    zdot0=math.tan(phi0)*w*z0
+    zdot0=math.tan(phi0)*omega*z0
+
+    #---Form state vector---
     State0=np.array([[x0],[y0],[z0],[xdot0],[ydot0],[zdot0]])
     
     
@@ -33,6 +49,10 @@ def no_drift_centered(C,D,psi0,phi0,w,tf,t_step):
     
     return(State0) #State0 is vector containing intial conditions
 
+
+
+
+##----Testing Function----
 
 # C=200 #km
 # D=20 #km
