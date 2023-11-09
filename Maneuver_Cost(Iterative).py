@@ -5,6 +5,9 @@ from No_Drift_Centered_Conditions import no_drift_centered
 from Impulsive_Maneuver import Impulsive_Maneuver
 from No_Drift_Centered_Conditions import no_drift_centered
 from Hill_Eq import hill_eq
+from Maneuver_cost_minimized import Maneuver_cost_minimized
+
+import scipy
 
 def Maneuver_Cost_Iterative(Orbit1,Orbit2, t_step,delta_t,n):
     """Given two orbit's geometric properties, will calculate the delta_v cost
@@ -49,11 +52,11 @@ def Maneuver_Cost_Iterative(Orbit1,Orbit2, t_step,delta_t,n):
     omega2=Orbit2[4]
     tf2=Orbit2[5]
 
-    #---Gets the intial states of the two orbit---
-    Orbit1_ic=no_drift_centered(c1,d1,psi1,phi1,omega1,tf1,t_step)
-    Orbit2_ic=no_drift_centered(c2,d2,psi2,phi2,omega2,tf2,t_step)
+    #---Gets the intial states of the first orbit---
+    Orbit1_ic=no_drift_centered(c1,d1,psi1,phi1,omega1)
+    #Orbit2_ic=no_drift_centered(c2,d2,psi2,phi2,omega2)
 
-    #---Propagate both orbits---
+    #---Propagate first orbits---
     Orbit1_propagated=hill_eq(Orbit1_ic,omega1,tf1,t_step)
    
     
@@ -62,33 +65,40 @@ def Maneuver_Cost_Iterative(Orbit1,Orbit2, t_step,delta_t,n):
 
     Orbit1_ic_shifted=np.reshape(np.array([Orbit1_propagated[:,0]]),(6,1))
     
+    
     #print(np.shape(Orbit1_ic_shifted)) #Degugging
-
     
     #---Calculate iterations---
-    psi_step=math.pi/n
-    psi_span=np.arange(0,math.pi,psi_step)
+    psi_step=2*math.pi/n
+    psi_span=np.arange(0,2*math.pi,psi_step)
 
     #---Initialize vector for delta_v values---
     delta_v_tab=np.empty([1,n])
-
-    #finds minimum value (look into Scipy optimzation libraary)
    
     #---For loop to iterate psi---
     #Calculates intial state from geometric properties of orbit 2. This then gets
     #into the impulsive_maneuver function to calculate the delta v.
     for i in range(n):
-        Orbit2_ic=no_drift_centered(c2,d2,psi_span[i],phi2,omega2,tf2,t_step)
+        Orbit2_ic_temp=no_drift_centered(c2,d2,psi_span[i],phi2,omega2)
         #Orbit2_propagated=hill_eq(Orbit2_ic,omega2,tf2,t_step) #Not necessary, but need to double check is this is useful
             #Probably not since Impulsive-manuever plots the graph as well
-        delta_v_tab[0,i]=Impulsive_Maneuver(Orbit1_ic_shifted, Orbit2_ic,tf2,t_step,omega1,delta_t)
+        delta_v_tab[0,i]=Impulsive_Maneuver(Orbit1_ic_shifted, Orbit2_ic_temp,tf2,t_step,omega1,delta_t)
+        #plt.close()
+
+
+
     
     #---Find and return minimum cost and its index---
     #Can make it so that it returns the geometric conditions/state/plots the minimum cost trajectory
     min_cost_value=np.min(delta_v_tab)
     min_cost_index=np.argmin(delta_v_tab)
-    return min_cost_value, min_cost_index
-
+    minimized=scipy.optimize.minimize(Maneuver_cost_minimized,psi_span[min_cost_index] ,args=(c2,d2,phi2,Orbit1_ic_shifted,omega1,omega2,delta_t),tol=0.0001)
+    print(minimized)
+    plt.figure()
+    plt.plot(np.reshape(psi_span,[1,n]),delta_v_tab,'*')
+    return min_cost_value, psi_span[min_cost_index], minimized
+    #return minimized
+    
 
 #Conditions for planar orbit
 #---Test Case---
@@ -118,9 +128,11 @@ delta_t=3000
 
 Orbit1=np.array([C1, D1, psi1, phi1, omega1,tf1])
 Orbit2=np.array([C2, D2, psi2, phi2, omega2,tf2])
-n=20
-print(np.shape(Orbit1))
+i=50
+#print(np.shape(Orbit1))
 
-test=Maneuver_Cost_Iterative(Orbit1,Orbit2, t_step,delta_t,n)
+test=Maneuver_Cost_Iterative(Orbit1,Orbit2, t_step,delta_t,i)
 
-print(test)
+# print(test)
+# plt.figure()
+# plt.plot(np.reshape(test[2],[i,1]),np.reshape(test[3],[i,1]),'*')

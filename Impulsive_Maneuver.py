@@ -44,7 +44,6 @@ def Impulsive_Maneuver(State_i, State_f,tf,t_step,omega,delta_t):
 
     #---Calc first delta-v---
     delta_v1,vf_T=delta_v(r0,rf,v0,delta_t,omega) 
-
     #---Transfer trajectory properties---
     'This puts you on the transfer orbit'
     v_T=v0+delta_v1
@@ -81,7 +80,7 @@ def Impulsive_Maneuver(State_i, State_f,tf,t_step,omega,delta_t):
 
     #---Returns normalized total delta_v---
     "Will be used for cost calculations"
-    return np.linalg.norm(delta_v1+delta_v2)
+    return np.linalg.norm(delta_v1)+np.linalg.norm(delta_v2)
 
 
 
@@ -89,20 +88,20 @@ def Impulsive_Maneuver(State_i, State_f,tf,t_step,omega,delta_t):
 
 # a = 6793.137 #km
 # mu = 398600.5 #km^3/s^2
-# w = (mu/a**3)**(1/2)
+# omega = (mu/a**3)**(1/2)
 # n=1 #number of orbits 
-# tf=n*(2*math.pi)/w 
+# tf=n*(2*math.pi)/omega 
 # t_step=10
 # detlat=3600
-#Conditions associated with
+# #Conditions associated with
 # C=80 #km
 # D=20 #km
 # psi0= 90
 # phi0= 90
-#State_i=np.array([[-7.15197331e+01],[ 7.16917786e+01],[ 8.96147232e+00], [4.04205966e-02],[ 1.61294382e-01],[-2.01617977e-02]])
+# State_i=np.array([[-7.15197331e+01],[ 7.16917786e+01],[ 8.96147232e+00], [4.04205966e-02],[ 1.61294382e-01],[-2.01617977e-02]])
 
 
-#Condtitions associated with
+# #Condtitions associated with
 # C=100 #km
 # D=30 #km
 # psi0= 90
@@ -110,24 +109,28 @@ def Impulsive_Maneuver(State_i, State_f,tf,t_step,omega,delta_t):
 # a = 6793.137 #km
 # mu = 398600.5 #km^3/s^2
 # w = (mu/a**3)**(1/2)
-#State_f=np.array([[-8.93996664e+01],[ 8.96147232e+01],[ 1.34422085e+01],[ 5.05257457e-02],[ 2.01617977e-01], [-3.02426966e-02]])
+# State_f=np.array([[-8.93996664e+01],[ 8.96147232e+01],[ 1.34422085e+01],[ 5.05257457e-02],[ 2.01617977e-01], [-3.02426966e-02]])
 
-#Conditions assocaited with
-# C=200 #km
-# D=20 #km
-# psi0= 0 #radians
-# phi0= math.pi/4 #raidans
-# a = 6793.137 #km
-# mu = 398600.5 #km^3/s^2
-# omega = (mu/a**3)**(1/2)
-# n=5 #number of orbits 
-# tf=n*(2*math.pi)/omega
-# t_step=10
-# State_f=np.array([[ 0.00000000e+00],[ 4.00000000e+02],[ 1.41421356e+01],[ 2.25524306e-01],[-0.00000000e+00],[ 1.59469766e-02]])
+# #Conditions assocaited with
+# # C=200 #km
+# # D=20 #km
+# # psi0= 0 #radians
+# # phi0= math.pi/4 #raidans
+# # a = 6793.137 #km
+# # mu = 398600.5 #km^3/s^2
+# #omega = (mu/a**3)**(1/2)
+# # n=5 #number of orbits 
+# # tf=n*(2*math.pi)/omega
+# # t_step=10
+# # State_f=np.array([[ 0.00000000e+00],[ 4.00000000e+02],[ 1.41421356e+01],[ 2.25524306e-01],[-0.00000000e+00],[ 1.59469766e-02]])
 
 
 
-#delta_t=5600
-#delta_t=5570
-#delta_t=5500
+
+# #delta_t=5600
+# #delta_t=5570
+# delta_t=5500
+
+# test=Impulsive_Maneuver(State_i, State_f,tf,t_step,omega,delta_t)
+# print(test)
 

@@ -36,7 +36,8 @@ def hill_eq(state,omega,tf,t_step):
     
     
     #---Form time span---
-    t=np.arange(0,tf,t_step)
+    
+    t=np.arange(0,tf+t_step,t_step)
 
     #---Perform elementwise operation (No for loop needed)---
     x_t=(vx/omega)*np.sin(omega*t)-(3*x+2*vy/omega)*np.cos(omega*t)+(4*x+2*vy/omega)

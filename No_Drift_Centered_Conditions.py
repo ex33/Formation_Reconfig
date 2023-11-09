@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math
 from Hill_Eq import hill_eq
 
-def no_drift_centered(C,D,psi0,phi0,omega,tf,t_step):
+def no_drift_centered(C,D,psi0,phi0,omega):
     """
     Given geometric constraints about the orbit, will return the intial conditions
     that will result in an orbit that is centered in the RST frame with no drift once
@@ -32,12 +32,21 @@ def no_drift_centered(C,D,psi0,phi0,omega,tf,t_step):
     #represented in terms of C D psi phi related to constraints that yc0=xc0=0, yc0_dot=0
 
     #---Solved hill eq given constraints---
-    xdot0=math.sqrt((C*C*omega*omega)/(math.tan(psi0)*math.tan(psi0)+1))
-    x0=math.tan(psi0)*xdot0/omega
-    y0=2*xdot0/omega
-    ydot0=-2*omega*x0
-    z0=math.sqrt((D*D)/(math.tan(phi0)*math.tan(phi0)+1))
-    zdot0=math.tan(phi0)*omega*z0
+    #xdot0=math.sqrt((C*C*omega*omega)/(math.tan(psi0)*math.tan(psi0)+1))
+    xdot0=omega*C*math.cos(psi0)
+
+    #x0=math.tan(psi0)*xdot0/omega #should maybe be sin of psi
+    x0=C*math.sin(psi0)
+    #y0=2*xdot0/omega 
+    y0=2*C*math.cos(psi0)
+    #ydot0=-2*omega*x0
+    ydot0=-2*omega*C*math.sin(psi0)
+    #z0=math.sqrt((D*D)/(math.tan(phi0)*math.tan(phi0)+1))
+
+    z0=D*math.cos(phi0)
+    zdot0=omega*D*math.sin(phi0)
+    #zdot0=math.tan(phi0)*omega*z0
+    
 
     #---Form state vector---
     State0=np.array([[x0],[y0],[z0],[xdot0],[ydot0],[zdot0]])
