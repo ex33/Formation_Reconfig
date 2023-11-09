@@ -1,6 +1,7 @@
 # Formation_Reconfig
-#Part of an intial Project in trying to investigate Non-Convex optimization problems with Analytical Solutions.
-#These files are functions that builds on each other in order to provide a way to validate results.
+#Part of an initial Project in trying to investigate Non-Convex optimization problems with Analytical Solutions under the Space Imaging and Optical Systems (SIOS) lab by Professor Savransky. Unfortunately, this project ended up producing a trivial result such that it returned back to the basic root finding method for optimized injection point between two relative motion orbits. 
+
+#These files are functions that builds on each other in order to provide a way to validate results and were the product of work done over half a semester.
 
 #Hill_Eq:
 General Clohessy Wiltshire Equation propagator. Given an intial state (x0 v0) and time span of 0:tf+t_step:t_step, will solve for state at each point. Can then plot results. This is the backbone of all following functions that ultilizes the closed form solution of the hill equations.
