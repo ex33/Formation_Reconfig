@@ -21,6 +21,7 @@ def calc_RV(delta_t):
                  [(2/omega)*(math.cos(omega*delta_t)-1), (1/omega)*(4*math.sin(omega*delta_t)-3*omega*delta_t), 0],
                  [0, 0, (1/omega)*math.sin(omega*delta_t)]])
     return RV
+
 def calc_RR(delta_t):
     RR=np.array([[4-3*math.cos(omega*delta_t), 0, 0],
                  [6*(math.sin(omega*delta_t)-omega*delta_t), 1 , 0],
@@ -29,6 +30,17 @@ def calc_RR(delta_t):
 
 
 def form_A_matrix(tau,t):
+    """Given 2 time vectors, where tau represents the entire discretized time span of the trajectory and t is observation times,
+    solve for the matrix  that will be used to solve for the impulsive manuvers via least squares method
+
+    :param tau: Entire discretized time span of trajectory. 
+    :type tau: 1xN Matrix
+    :param t: Observation times
+    :type t: 1xM
+
+    :return: Forms A matrix to solve the problem of Ax=B
+    :rtype: Returns (N*3) x (6+M*3) Matrix
+    """
     #Tau are manuvers
     #t are observations 
     N=len(tau)
@@ -51,17 +63,47 @@ def form_A_matrix(tau,t):
        # B=np.concatenate((B,np.block(row)),axis=0)
     return A
 
-def form_B_vector(tau,t,)
-            
+def form_B_vector(tau,t,manuver,x0,v0,del_v):
+    """Normally, we would be given the position of the spacecraft at each observation, but this will be artifically made
 
 
+    :param tau: _description_
+    :type tau: _type_
+    :param t: _description_
+    :type t: _type_
+    :param manuver: _description_
+    :type manuver: _type_
+    """
+    N=len(tau)
+    M=len(t)
+    L=len(manuver)
+    B=[]
+    for j in range(N):
+        row=[]
+        for k in range(L):
+            if t[j]<manuver[k]:
+                row.append(np.matmul(calc_RR(t[j]),x0)+np.matmul(calc_RV(t[j],v0)))
+            else:
+                row.append(np.matmul(calc_RR(t[j]),x0)+np.matmul(calc_RV(t[j],v0)))
+                row=row+np.matmul(calc_RV(t[j]-manuver[k]),del_v)
+        if j==0:
+            B=np.block(row)
+        else:
+            B=np.vstack((B,np.block(row)))
+        
+    
 
-tau=np.empty([140])
-t=np.empty([14])
+
+N=140
+M=15
+tau=np.empty([N])
+t=np.empty([M])
 for i in range(140):
     tau[i]=10*(i+1)
 for j in range(14):
     t[j]=100*(j+1)
+
+manuver=np.array([1,260,600, 750])
 
 A=form_A_matrix(tau,t)
 
@@ -72,7 +114,7 @@ A=form_A_matrix(tau,t)
 # phi=0
 a = 6793.137 #km
 mu = 398600.5 #km^3/s^2
-omega = (mu/a**3)**(1/2)
+omega =math.sqrt(mu/a**3)
 # tau=np.zeros([4]) 
 # #Step 1: Obtain first state
 # State1=no_drift_centered(C,D,psi,phi,omega)
