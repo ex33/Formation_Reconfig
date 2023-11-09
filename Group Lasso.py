@@ -28,13 +28,12 @@ def calc_RR(delta_t):
     return RR
 
 
-def form_B_matrix(tau,t):
-    
+def form_A_matrix(tau,t):
     #Tau are manuvers
     #t are observations 
     N=len(tau)
     M=len(t)
-    B=[]
+    A=[]
     for i in range(M):
         row=[]
         row.append(calc_RR(t[i]))
@@ -46,15 +45,13 @@ def form_B_matrix(tau,t):
             else:
                 row.append(np.zeros([3,3]))
         if i==0:
-            B=np.block(row)
+            A=np.block(row)
         else:
-            B=np.vstack((B, np.block(row)))
+            A=np.vstack((A, np.block(row)))
        # B=np.concatenate((B,np.block(row)),axis=0)
-     
-        
+    return A
 
-
-    return B
+def form_B_vector(tau,t,)
             
 
 
@@ -66,7 +63,9 @@ for i in range(140):
 for j in range(14):
     t[j]=100*(j+1)
 
-A=form_B_matrix(tau,t)
+A=form_A_matrix(tau,t)
+
+
 # C=100
 # D=50
 # psi=0
