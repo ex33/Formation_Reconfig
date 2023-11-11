@@ -1,5 +1,5 @@
 # Formation_Reconfig
-Part of an initial Project in trying to investigate Non-Convex optimization problems with Analytical Solutions under the Space Imaging and Optical Systems (SIOS) lab by Professor Savransky. Unfortunately, this project ended up producing a trivial result such that it returned back to the basic root-finding method for optimized injection points between two relative motion orbits. 
+Part of an initial Project in trying to investigate "Non-Convex optimization problems with Analytical Solutions" under the Space Imaging and Optical Systems (SIOS). Unfortunately, this project ended up producing trivial results in that it returned to the basic root-finding method for optimized injection points between two relative motion orbits. 
 
 These files are functions that build on each other in order to provide a way to validate results and were the product of work done over half a semester.
 
