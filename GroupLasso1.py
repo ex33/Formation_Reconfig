@@ -7,7 +7,7 @@ from Hill_Eq import hill_eq
 import matplotlib.pyplot as plt
 from Delta_V_Calculator import delta_v
 
-from celer import LassoCV,GroupLassoCV
+from celer import LassoCV,GroupLassoCV, GroupLasso, Lasso
 from celer.plot_utils import configure_plt
 #Simulate test 
 #Subroutine 1: Add delta_v to state
@@ -101,7 +101,7 @@ def form_x_vector(State1,tau,manuver):
     for j in range(0,N):
         row=np.zeros([3,1])
         for k in range(L):
-            if np.abs(tau[j]-manuver[k])<.000001:
+            if tau[j]==manuver[k]:
                 row=del_v
         x=np.vstack((x,row))
     return x
@@ -141,34 +141,97 @@ del_v=np.array([[0.001],[0.001],[0.001]])
 
 B=form_B_vector(tau,t,manuver,r0,v0,del_v)
 
+A_Control = A[:,6:]
+print( (A[:,:6] @ State1))
+B_Control = B[:,0] - (A[:,:6] @ State1)[:,0]
+
 
 x=form_x_vector(State1,tau,manuver)
 
-print("x")
-print(x)
+#print("x")
+#print(x)
 print("Stuff")
-print(np.linalg.norm((A @ x[:,0]) - B[:,0]))
-print((A @ x[:,0]).shape)
+print(np.linalg.norm((A_Control @ x[6:,0]) - B_Control))
 
+print(A_Control.shape)
+print(B_Control.shape)
 
-LS=np.linalg.lstsq(A,B)
+LS=np.linalg.lstsq(A_Control,B_Control)
 LS0=LS[0]
-plt.plot(LS0[6:])
+plt.plot(LS0)
+
 plt.figure()
 plt.plot(x[6:])
+print(np.linalg.norm((A_Control @ LS[0]) - B_Control))
+
 
 #Form group list of list
 group=[]
-for i in np.arange(6,(N+2)*3,3):
+for i in np.arange(0,(N)*3,3):
     group.append([i,i+1,i+2])
 
 print(group)
 
-
+print("alpha")
+alpha=np.max(A_Control.transpose()@B_Control)
+print(alpha)
 group_lasso = GroupLassoCV(groups=group)
-group_lasso.fit(A, B[:,0].transpose())
+#group_lasso = GroupLasso(groups=group, alpha=.51)
+#group_lasso = LassoCV()
+#group_lasso = Lasso(alpha=.05)
+group_lasso.fit(A_Control, B_Control)
 #print(group_lasso.coef_)
 plt.figure()
-plt.plot(group_lasso.coef_[6:])
+plt.plot(group_lasso.coef_)
+print(group_lasso.coef_.shape)
+print(np.linalg.norm((A_Control @ group_lasso.coef_) - B_Control))
+plt.figure()
+plt.plot((A_Control @ group_lasso.coef_) - B_Control)
+
+
+j=0
+norm_squared_individual = 0
+overall_control_norm = 0
+for i in x[6:]:
+    norm_squared_individual += i**2
+    if j % 3 == 2:
+        overall_control_norm += math.sqrt(norm_squared_individual)
+        norm_squared_individual = 0
+    j+=1
+
+print("true total delta-v")
+print(overall_control_norm)
+
+j=0
+norm_squared_individual = 0
+overall_control_norm = 0
+for i in group_lasso.coef_:
+    norm_squared_individual += i**2
+    if j % 3 == 2:
+        overall_control_norm += math.sqrt(norm_squared_individual)
+        norm_squared_individual = 0
+    j+=1
+
+print("calculated total delta-v")
+print(overall_control_norm)
+
+
+
+"""
+print("Estimated regularization parameter alpha: %s" % group_lasso.alpha_)
+
+fig = plt.figure(figsize=(6, 3), constrained_layout=True)
+plt.semilogx(group_lasso.alphas_, group_lasso.mse_path_, ':')
+plt.semilogx(group_lasso.alphas_, group_lasso.mse_path_.mean(axis=-1), 'k',
+             label='Average across the folds', linewidth=2)
+plt.axvline(group_lasso.alpha_, linestyle='--', color='k',
+            label='alpha: CV estimate')
+
+plt.legend()
+
+plt.xlabel(r'$\alpha$')
+plt.ylabel('Mean square prediction error')
+"""
 plt.show()
+
 
